@@ -1,4 +1,10 @@
 # simulation
+![Screenshot 2024-10-22 231225](https://github.com/user-attachments/assets/8c0ea0f4-1643-4fb9-add0-89b58a9de518)
+![Screenshot 2024-10-22 231749](https://github.com/user-attachments/assets/cffe89a7-d5f7-45a5-b389-e81a1f0258ef)
+![Screenshot 2024-10-22 231814](https://github.com/user-attachments/assets/dab4ecef-0ea2-4484-b11a-05abae2ff87b)
+![Screenshot 2024-10-22 231826](https://github.com/user-attachments/assets/c0db5571-5cc8-48ca-be33-3718731ecb4f)
+
+
 
 A new Flutter project.
 
