@@ -12,63 +12,7 @@ class SimulationApp extends StatelessWidget {
       title: 'Inventory Simulation',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: RulesScreen(), // Start with the Rules screen
-    );
-  }
-}
-
-// Rules Screen to display the rules and navigate to the simulation form
-class RulesScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Simulation Rules'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Inventory Simulation Rules:',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  '(a) Whenever the inventory level falls to or below 10 units, an order is placed. Only one order can be outstanding at a time.\n\n'
-                  '(b) The size of each order is equal to 20 - I, where I is the inventory level when the order is placed.\n\n'
-                  '(c) If a demand occurs during a period when the inventory level is zero, the sale is lost.\n\n'
-                  '(d) Daily demand is normally distributed, with a mean of 5 units and a standard deviation of 1.5 units. (Round off demands to the closest integer during the simulation, and, if a negative value results, give it a demand of zero.)\n\n'
-                  '(e) Lead time is distributed uniformly between zero and 5 days (integers only).\n\n'
-                  '(f) The simulation will start with 18 units in inventory.\n\n'
-                  '(g) For simplicity, assume that orders are placed at the close of the business day and received after the lead time has occurred.\n\n'
-                  '(h) Let the simulation run for 5 weeks.',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SimulationFormScreen(),
-                    ),
-                  );
-                },
-                child: Text('Proceed to Simulation'),
-              ),
-            ),
-          ],
-        ),
-      ),
+      home: SimulationFormScreen(),
     );
   }
 }
@@ -114,11 +58,16 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
     for (int day = 0; day < simulationDays; day++) {
       int week = (day / 5).floor() + 1;
 
-      // Generate an RNN using the Box-Muller transform
-      double rnn = generateRandomNormal(random);
+      // Check if an order has arrived at the beginning of the day
+      if (leadTimeRemaining == 0 && outstandingOrder > 0) {
+        inventory += outstandingOrder;
+        outstandingOrder = 0; // Reset outstanding order
+        leadTimeRemaining = -1; // Reset lead time indicator
+      }
 
-      // Calculate daily demand using the formula: D = 5 + 1.5 * RNN
-      int demand = max(0, (5 + 1.5 * rnn).round());
+      // Generate a simple random number for demand
+      double rnn = random.nextDouble(); // Random number between 0 and 1
+      int demand = max(0, (5 + (rnn * 3 - 1.5)).round()); // Scale to demand range
 
       // Track beginning inventory
       int beginInventory = inventory;
@@ -142,13 +91,9 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
         outstandingOrder = orderQuantity;
       }
 
-      // Update lead time and check if order is received
+      // Update lead time for the next day
       if (leadTimeRemaining > 0) {
         leadTimeRemaining--;
-      } else if (leadTimeRemaining == 0) {
-        inventory += outstandingOrder;
-        outstandingOrder = 0;
-        leadTimeRemaining = -1;
       }
 
       // Collect data for each day
@@ -156,7 +101,7 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
         'Week': week,
         'Day': (day % 5) + 1,
         'Begin Inventory': beginInventory,
-        'RNN': rnn.toStringAsFixed(2),
+        'RNN': rnn.toStringAsFixed(2), // Display the raw random number
         'Demand': demand,
         'Ending Inventory': inventory,
         'Order Quantity': orderQuantity,
@@ -171,19 +116,11 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
     setState(() {});
   }
 
-  double generateRandomNormal(Random random) {
-    // Box-Muller transform to generate a standard normal distribution
-    double u1 = random.nextDouble();
-    double u2 = random.nextDouble();
-    double rnn = sqrt(-2.0 * log(u1)) * cos(2.0 * pi * u2);
-    return rnn;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Inventory Simulation Problem'),
+        title: Text('Inventory Simulation'),
         centerTitle: true,
       ),
       body: Padding(
