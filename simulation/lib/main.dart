@@ -12,7 +12,62 @@ class SimulationApp extends StatelessWidget {
       title: 'Inventory Simulation',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: SimulationFormScreen(),
+      home: RulesScreen(), // Start with the Rules screen
+    );
+  }
+}
+
+// Rules Screen to display the rules and navigate to the simulation form
+class RulesScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Simulation Rules'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Inventory Simulation Rules:',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            const Expanded(
+              child: SingleChildScrollView(
+                child: Text(
+                  '(a) Whenever the inventory level falls to or below 10 units, an order is placed. Only one order can be outstanding at a time.\n\n'
+                  '(b) The size of each order is equal to 20 - I, where I is the inventory level when the order is placed.\n\n'
+                  '(c) If a demand occurs during a period when the inventory level is zero, the sale is lost.\n\n'
+                  '(d) Daily demand is normally distributed, with a mean of 5 units and a standard deviation of 1.5 units. (Round off demands to the closest integer during the simulation, and, if a negative value results, give it a demand of zero.)\n\n'
+                  '(e) Lead time is distributed uniformly between zero and 5 days (integers only).\n\n'
+                  '(f) The simulation will start with 18 units in inventory.\n\n'
+                  '(g) For simplicity, assume that orders are placed at the close of the business day and received after the lead time has occurred.\n\n'
+                  '(h) Let the simulation run for 5 weeks.',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SimulationFormScreen(),
+                    ),
+                  );
+                },
+                child: const Text('Proceed to Simulation'),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -41,7 +96,7 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
     // Parsing the input values
     int initialInventory = int.parse(initialInventoryController.text);
     int reorderPoint = int.parse(reorderPointController.text);
-    int baseOrderSize = int.parse(orderSizeController.text);
+    int baseOrderSize = int.parse(orderSizeController.text); //20-i 
     int leadTimeMin = int.parse(leadTimeMinController.text);
     int leadTimeMax = int.parse(leadTimeMaxController.text);
     int simulationWeeks = int.parse(simulationWeeksController.text);
@@ -87,7 +142,7 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
       if (inventory <= reorderPoint && outstandingOrder == 0) {
         // Calculate the order size based on the formula: Order Size = baseOrderSize - inventory level
         orderQuantity = max(0, baseOrderSize - inventory);
-        leadTimeRemaining = random.nextInt(leadTimeMax - leadTimeMin + 1) + leadTimeMin;
+        leadTimeRemaining = random.nextInt(leadTimeMax - leadTimeMin + 1) + leadTimeMin; //making sure rn include min as well as max thats why +1
         outstandingOrder = orderQuantity;
       }
 
@@ -120,7 +175,7 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Inventory Simulation'),
+        title: const Text('Inventory Simulation'),
         centerTitle: true,
       ),
       body: Padding(
@@ -135,16 +190,16 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
               buildTextField('Lead Time Min (Days)', leadTimeMinController),
               buildTextField('Lead Time Max (Days)', leadTimeMaxController),
               buildTextField('Simulation Weeks', simulationWeeksController),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     runSimulation();
                   }
                 },
-                child: Text('Run Simulation'),
+                child: const Text('Run Simulation'),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (simulationData.isNotEmpty) ...[
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -179,10 +234,10 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
                         .toList(),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
                   'Average Lost Sales per Week: ${averageLostSalesPerWeek.toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ]
             ],
@@ -199,9 +254,9 @@ class _SimulationFormScreenState extends State<SimulationFormScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
-        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
         validator: (value) {
           if (value == null || value.isEmpty) {
             return 'Please enter a value';
